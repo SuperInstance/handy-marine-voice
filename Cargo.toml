@@ -1,0 +1,22 @@
+[package]
+name = "handy-marine-voice"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "Voice-controlled marine autopilot — Handy hears you, CoCapn steers. No cloud required."
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+log = "0.4"
+env_logger = "0.11"
+regex = "1"
+# IPC with Handy over stdin/stdout or TCP
+# In production this would use Handy's WebSocket or Tauri events;
+# here we model the command grammar and protocol.
+
+[features]
+default = []
+# In production: enable tcp listener for Handy transcription events
+# integration = ["tokio", "tiny_http"]
