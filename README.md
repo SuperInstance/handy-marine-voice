@@ -1,5 +1,7 @@
 # Handy-Marine-Voice 🎤⛵
 
+> **📚 Documentation:** [`PLUG_AND_PLAY.md`](./PLUG_AND_PLAY.md) · [`GETTING_STARTED.md`](./GETTING_STARTED.md) · [`ARCHITECTURE.md`](./ARCHITECTURE.md) · [`API_REFERENCE.md`](./API_REFERENCE.md) · [`LOW_LEVEL.md`](./LOW_LEVEL.md)
+
 **Voice-controlled marine autopilot. Handy hears you. CoCapn steers. No cloud required.**
 
 Handy-Marine-Voice is an integration between [Handy](https://github.com/cjpais/Handy) (offline speech-to-text) and the CoCapn distributed agent framework ([cocapn-marine](https://github.com/SuperInstance/cocapn-marine) + [cocapn-core](https://github.com/SuperInstance/cocapn-core)). It translates spoken commands into marine autopilot actions — heading holds, turns, speed changes, depth queries, deadband configuration, and compute tier escalation.
