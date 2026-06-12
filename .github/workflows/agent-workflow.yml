@@ -1,0 +1,110 @@
+# ======================================================================
+# L3 Agent Workflow — handy-marine-voice
+# ======================================================================
+# Trigger handy-marine-voice as an L3 agent via GitHub Actions.
+# ======================================================================
+
+name: Agent Task (Level-3)
+
+on:
+  workflow_dispatch:
+    inputs:
+      agent_task:
+        description: 'Task for the agent to execute'
+        required: true
+        default: 'cargo test'
+        type: string
+      agent_model:
+        description: 'Model to use'
+        required: false
+        default: 'deepseek-ai/DeepSeek-V4-Flash'
+        type: string
+      output_format:
+        description: 'Output format'
+        required: false
+        default: 'markdown'
+        type: choice
+        options:
+          - markdown
+          - json
+          - yaml
+      commit_results:
+        description: 'Commit results back to repo?'
+        required: false
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+env:
+  CARGO_TERM_COLOR: always
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  DEEPINFRA_API_KEY: ${{ secrets.DEEPINFRA_API_KEY }}
+  DEEPINFRA_API_URL: https://api.deepinfra.com/v1
+  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+jobs:
+  execute-agent-task:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Agent Identity
+        run: |
+          echo "::group::Agent Identity"
+          echo "Repo: ${{ github.repository }}"
+          echo "Agent: handy-marine-voice (L3)"
+          echo "Task: ${{ github.event.inputs.agent_task }}"
+          echo "::endgroup::"
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - name: Cache Rust builds
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build
+        run: |
+          echo "::group::Build"
+          cargo build --release 2>&1
+          echo "::endgroup::"
+
+      - name: Execute Agent Task
+        id: execute
+        run: |
+          echo "::group::Agent Task Output"
+          mkdir -p agent-output
+          OUTPUT_FILE="agent-output/result.${{ github.event.inputs.output_format == 'markdown' && 'md' || github.event.inputs.output_format }}"
+          eval '${{ github.event.inputs.agent_task }}' 2>&1 | tee "$OUTPUT_FILE"
+          echo "::endgroup::"
+
+      - name: Commit Results
+        if: ${{ github.event.inputs.commit_results == 'true' }}
+        run: |
+          git config user.name "agent-bot"
+          git config user.email "agent-bot@users.noreply.github.com"
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "agent: ${{ github.event.inputs.agent_task }} [skip ci]"
+            git push origin HEAD:${{ github.ref_name }}
+          fi
+
+      - name: Upload Agent Output
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-output
+          path: agent-output/
+          retention-days: 7
+
+      - name: Summary
+        run: |
+          echo "## Agent Task Complete — handy-marine-voice" >> $GITHUB_STEP_SUMMARY
+          echo "| Task | ${{ github.event.inputs.agent_task }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Run ID | ${{ github.run_id }} |" >> $GITHUB_STEP_SUMMARY

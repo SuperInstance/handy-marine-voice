@@ -1,0 +1,45 @@
+{
+    "name": "Handy Marine Voice Development",
+    "image": "mcr.microsoft.com/devcontainers/rust:1-bullseye",
+    "features": {
+        "ghcr.io/devcontainers/features/github-cli:1": {
+            "version": "latest"
+        },
+        "ghcr.io/devcontainers/features/audio:1": {
+            "version": "latest"
+        }
+    },
+    "remoteEnv": {
+        "AGENT_NAME": "handy-marine-voice-agent",
+        "AGENT_ROLE": "voice-control-worker",
+        "DEEPINFRA_API_URL": "https://api.deepinfra.com/v1",
+        "GITHUB_TOKEN": "${localEnv:GITHUB_TOKEN}",
+        "DEEPINFRA_API_KEY": "${localEnv:DEEPINFRA_API_KEY}",
+        "OPENAI_API_KEY": "${localEnv:OPENAI_API_KEY}",
+        "CARGO_TERM_COLOR": "always"
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "rust-lang.rust-analyzer",
+                "serayuzgur.crates",
+                "tamasfe.even-better-toml",
+                "vadimcn.vscode-lldb",
+                "github.vscode-pull-request-github"
+            ],
+            "settings": {
+                "editor.formatOnSave": true,
+                "rust-analyzer.check.command": "clippy",
+                "[rust]": {
+                    "editor.defaultFormatter": "rust-lang.rust-analyzer"
+                },
+                "[toml]": {
+                    "editor.defaultFormatter": "tamasfe.even-better-toml"
+                }
+            }
+        }
+    },
+    "postCreateCommand": "cargo build",
+    "remoteUser": "vscode",
+    "containerUser": "vscode"
+}
